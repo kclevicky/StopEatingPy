@@ -3,7 +3,7 @@
     Written by Kaleb Levicky"""
 import muscle_groups
 
-Chest_Workout = muscle_groups.Workout('chest', 4)
+Chest_Workout = muscle_groups.Workout('shoulder', 4)
 print(Chest_Workout.build_workout())
 
 

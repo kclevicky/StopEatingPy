@@ -18,19 +18,19 @@ class Workout:
                                 ('decline press', 'Definition'), ('dumbbell squeeze press', 'Definition')]
 
         # shoulder exercises
-        anterior_delts = [('military press', 'Definition'), ('arnold press', 'Definition'),
+        self.anterior_delts = [('military press', 'Definition'), ('arnold press', 'Definition'),
                           ('front raise', 'Definition')]  # front delts
-        medial_delts = [('military press', 'Definition'), ('arnold press', 'Definition'),
+        self.medial_delts = [('military press', 'Definition'), ('arnold press', 'Definition'),
                         ('lateral raises', 'Definition')]  # lateral/mid delts
-        posterior_delts = [('reverse pec dec', 'Definition'), ('face pulls', 'Definition'),
+        self.posterior_delts = [('reverse pec dec', 'Definition'), ('face pulls', 'Definition'),
                            ('arnold press', 'Definition')]  # rear delts
 
         # form a unique list of shoulder exercises
-        self.shoulder_exercises = anterior_delts
-        self.shoulder_exercises += medial_delts
-        self.shoulder_exercises += posterior_delts
-        self.compound_shoulder_exercises = compound(self.shoulder_exercises)
-        self.shoulder_exercises = unique(self.shoulder_exercises)
+        self.shoulder_exercises = self.anterior_delts
+        self.shoulder_exercises += self.medial_delts
+        self.shoulder_exercises += self.posterior_delts
+        self.compound_shoulder_exercises = self.compound(self.shoulder_exercises)
+        self.shoulder_exercises = self.unique(self.shoulder_exercises)
 
         # back exercises
         lats = {'lat pulldowns': 'Definition', 'barbell row': 'Definition', 'landmine row': 'Definition',
@@ -78,6 +78,7 @@ class Workout:
                    f'{len(self.chest_exercises) + 1}'
         else:
             exercise_routine = []
+
             while len(exercise_routine) < self.total_exercises:  # while the exercise routine is not full
                 index = random.randrange(0, len(self.chest_exercises))  # choose an exercise
                 if self.chest_exercises[index][0] not in exercise_routine:  # if the exercise is not in the routine
@@ -91,15 +92,36 @@ class Workout:
                    f'{len(self.shoulder_exercises) + 1}.'
         else:
             exercise_routine = []
-            while len(exercise_routine) < self.total_exercises:  # while the exercise routine is not full
-                index = random.randrange(0, len(self.chest_exercises))  # choose an exercise
-                if self.chest_exercises[index] not in exercise_routine:  # if the exercise is not in the routine
-                    exercise_routine.append(self.chest_exercises[index][0])  # append the exercise
-            return exercise_routine
 
-        # MUST have at least one from anterior, medial, posterior
-        # MUST account for compound exercises
-        # MUST account for less than 3 exercises requested
+            # add exercise from anterior delts
+            index = random.randrange(0, len(self.anterior_delts))
+            exercise_routine.append(self.anterior_delts[index][0])
+
+            # add exercise from posterior delts
+            if self.total_exercises > 1:
+                index = random.randrange(0, len(self.posterior_delts))
+                exercise = self.posterior_delts[index][0]
+                while exercise in exercise_routine:  # ensure exercise is not already added
+                    index = random.randrange(0, len(self.posterior_delts))
+                    exercise = self.posterior_delts[index][0]
+                exercise_routine.append(self.posterior_delts[index][0])
+
+            # add exercise from medial delts
+            if self.total_exercises > 2:
+                index = random.randrange(0, len(self.medial_delts))
+                exercise = self.medial_delts[index][0]
+                while exercise in exercise_routine:  # ensure exercise is not already added
+                    index = random.randrange(0, len(self.medial_delts))
+                    exercise = self.medial_delts[index][0]
+                exercise_routine.append(self.medial_delts[index][0])
+
+            # fill remaining exercises
+            while len(exercise_routine) < self.total_exercises:  # while the exercise routine is not full
+                index = random.randrange(0, len(self.shoulder_exercises))  # choose an exercise
+                if self.shoulder_exercises[index][0] not in exercise_routine:  # if the exercise is not in the routine
+                    exercise_routine.append(self.shoulder_exercises[index][0])  # append the exercise
+
+            return self.arrange_workout(exercise_routine)
 
     def build_back_workout(self):
         pass
@@ -113,24 +135,34 @@ class Workout:
     def build_leg_workout(self):
         pass
 
+    def unique(self, list):
+        """Return a list of unique values given a list of repeated values"""
+        unique_list = []
+        for value in list:
+            if value not in unique_list:
+                unique_list.append(value)
+        return unique_list
 
-def unique(list):
-    """Return a list of unique values given a list of repeated values"""
-    unique_list = []
-    for value in list:
-        if value not in unique_list:
-            unique_list.append(value)
-    return unique_list
+    def compound(self, list):
+        """Return a list of compound exercises"""
+        compound_exercises = []
 
+        # build list of compound exercises
+        index = 0
+        for value in list:
+            if (value in list[:index]) and (
+                    value[0] not in compound_exercises):  # if the exercise occurs more than once
+                compound_exercises.append(value[0])
+            index += 1
+        return compound_exercises
 
-def compound(list):
-    """Return a list of compound exercises"""
-    compound_exercises = []
+    def arrange_workout(self, routine):
+        """Arrange a workout to ensure that compound exercises come first"""
 
-    # build list of compound exercises
-    index = 0
-    for value in list:
-        if (value in list[:index]) and (value not in compound_exercises):  # if the exercise occurs more than once
-            compound_exercises.append(value)
-        index += 1
-    return compound_exercises
+        # rearrange exercise routine with compound exercises first
+        for exercise in routine:
+            if exercise in self.compound_shoulder_exercises:
+                routine.remove(exercise)
+                routine.insert(0, exercise)
+
+        return routine

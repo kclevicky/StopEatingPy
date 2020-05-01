@@ -1,6 +1,7 @@
 # muscle_groups.py
 """Build a workout routine for a specified muscle group.
     Available groups: Chest, Back, Biceps, Triceps, Shoulders, legs
+    Muscle groups
     Written by Kaleb Levicky"""
 import random
 
